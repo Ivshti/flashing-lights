@@ -1,0 +1,34 @@
+{
+  "name": "flashing-lights",
+  "version": "1.0.0",
+  "description": "A battery-powered emergency warning and flood light for authorized emergency vehicles. It uses an ESP32 to drive an RGBW LED array on a 150 × 90 mm metal-core board.",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Ivshti/flashing-lights.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Ivshti/flashing-lights/issues"
+  },
+  "homepage": "https://github.com/Ivshti/flashing-lights#readme",
+  "overrides": {
+    "@tscircuit/schematic-trace-solver": "0.0.214"
+  },
+  "private": true,
+  "devDependencies": {
+    "circuit-json-to-gerber": "^0.0.109",
+    "circuit-json-to-pnp-csv": "^0.0.19",
+    "dsn-converter": "^0.0.92",
+    "three": "^0.186.1",
+    "tscircuit": "^0.0.2705"
+  }
+}
