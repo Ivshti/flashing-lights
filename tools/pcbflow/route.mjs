@@ -14,6 +14,7 @@ import { pathToFileURL } from "node:url"
 import { toDsn, sesToElements } from "./dsn.mjs"
 import { check } from "./check.mjs"
 import { buildModel } from "./model.mjs"
+import { makePlanes, makeStubs } from "./planes.mjs"
 
 const cfgPath = path.resolve(process.argv[2])
 const cfg = (await import(pathToFileURL(cfgPath))).default
@@ -30,6 +31,14 @@ for (const t of cj.filter((e) => e.type === "pcb_trace")) {
   if (st) t._net = m.keyName.get(st.subcircuit_connectivity_map_key)
 }
 
+if (cfg.stubs) cj.push(...makeStubs(cj, cfg.stubs))
+for (const [i, w] of (cfg.wires ?? []).entries())
+  cj.push({
+    type: "pcb_trace",
+    pcb_trace_id: `manual_${i}`,
+    route: w.pts.map((p) => ({ route_type: "wire", x: p.x, y: p.y, width: w.width, layer: w.layer })),
+    _net: w.net,
+  })
 const { dsn, nets } = toDsn(cj, cfg.dsn)
 const dsnFile = path.join(out, `${cfg.name}.dsn`)
 const sesFile = path.join(out, `${cfg.name}.ses`)
@@ -70,6 +79,7 @@ const routed = sesToElements(ses, { via: cfg.dsn.via })
 // Freerouting writes back the protected wires as well, so drop ours
 const base = cj.filter((e) => e.type !== "pcb_trace" && e.type !== "pcb_via" && !/error|warning/.test(e.type))
 const result = [...base, ...routed]
+if (cfg.planes) result.push(...makePlanes(result, cfg.planes, { cornerRadius: cfg.dsn.cornerRadius }))
 const routedFile = path.join(out, `${cfg.name}.routed.json`)
 fs.writeFileSync(routedFile, JSON.stringify(result))
 console.log(`routed: ${routed.filter((e) => e.type === "pcb_trace").length} wires, ${routed.filter((e) => e.type === "pcb_via").length} vias`)

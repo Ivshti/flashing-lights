@@ -1,19 +1,25 @@
 {
   "name": "flashing-lights",
   "version": "1.0.0",
-  "description": "A battery-powered emergency warning and flood light for authorized emergency vehicles. It uses an ESP32 to drive an RGBW LED array on a 150 × 90 mm metal-core board.",
-  "main": "index.js",
+  "description": "Emergency RGBA light: tscircuit hardware sources and fab tooling",
   "directories": {
     "doc": "docs"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "led:build": "cd hardware && tsci build led-board.circuit.tsx --routing-disabled --disable-parts-engine",
+    "led:drc": "node tools/pcbflow/drc.mjs dist/hardware/led-board/circuit.json",
+    "led:fab": "node tools/pcbflow/fab.mjs dist/hardware/led-board/circuit.json hardware/led-board.bom.mjs fab/led-board && python3 tools/pcbflow/gerbercheck.py fab/led-board/gerber build/led-gerber-top.svg",
+    "led": "npm run led:build && npm run led:drc && npm run led:fab",
+    "ctl:build": "cd hardware && tsci build control-board.circuit.tsx --routing-disabled --disable-parts-engine",
+    "ctl:route": "node tools/pcbflow/route.mjs hardware/control-board.route.mjs",
+    "ctl:drc": "node tools/pcbflow/drc.mjs build/control-board/control-board.routed.json 0.14",
+    "ctl:fab": "node tools/pcbflow/fab.mjs build/control-board/control-board.routed.json hardware/control-board.bom.mjs fab/control-board && python3 tools/pcbflow/gerbercheck.py fab/control-board/gerber build/ctl-gerber-top.svg",
+    "ctl": "npm run ctl:build && npm run ctl:route && npm run ctl:fab"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/Ivshti/flashing-lights.git"
   },
-  "keywords": [],
   "author": "",
   "license": "ISC",
   "bugs": {
@@ -30,5 +36,6 @@
     "dsn-converter": "^0.0.92",
     "three": "^0.186.1",
     "tscircuit": "^0.0.2705"
-  }
+  },
+  "type": "module"
 }

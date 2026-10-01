@@ -94,7 +94,7 @@ export function buildModel(cj) {
       drill: e.type === "pcb_plated_hole" ? holeDiameter(e) : 0,
     })
   }
-  const holes = cj.filter((e) => e.type === "pcb_hole").map((h) => ({ x: h.x, y: h.y, d: holeDiameter(h) }))
+  const holes = cj.filter((e) => e.type === "pcb_hole").map((h) => ({ x: h.x, y: h.y, d: holeDiameter(h), comp: h.pcb_component_id }))
   return { board, allLayers, pads, holes, keyName }
 }
 

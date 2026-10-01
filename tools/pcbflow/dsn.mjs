@@ -40,10 +40,13 @@ export function toDsn(cj, opts) {
   L.push(`(pcb ${q("board")}`)
   L.push(`  (parser (string_quote ") (space_in_quoted_tokens on) (host_cad "tscircuit") (host_version "pcbflow"))`)
   L.push(`  (resolution um 10)`, `  (unit um)`, `  (structure`)
-  allLayers.forEach((ly, i) => L.push(`    (layer ${ly} (type signal) (property (index ${i})))`))
+  const planeLayers = new Set((opts.planes ?? []).map((p) => p.layer))
+  allLayers.forEach((ly, i) => L.push(`    (layer ${ly} (type ${planeLayers.has(ly) ? "power" : "signal"}) (property (index ${i})))`))
   // Freerouting treats the pcb boundary as the routable area, so inset it by
   // the copper-to-edge clearance (the real outline comes from Circuit JSON)
   L.push(`    (boundary (path pcb 0 ${roundedRectPath(board.width, board.height, opts.cornerRadius, opts.edgeClearance)}))`)
+  for (const p of opts.planes ?? [])
+    L.push(`    (plane ${q(p.net)} (polygon ${p.layer} 0 ${roundedRectPath(board.width, board.height, opts.cornerRadius, opts.edgeClearance + 0.3)}))`)
   for (const h of m.holes)
     for (const ly of allLayers)
       L.push(`    (keepout "" (circle ${ly} ${n(h.d + 2 * opts.holeClearance)} ${n(h.x)} ${n(h.y)}))`)
@@ -132,7 +135,7 @@ export function toDsn(cj, opts) {
   L.push(`  (wiring`)
   for (const t of cj.filter((e) => e.type === "pcb_trace")) {
     const st = sTraces.get(t.source_trace_id)
-    const net = st ? m.keyName.get(st.subcircuit_connectivity_map_key) : null
+    const net = t._net ?? (st ? m.keyName.get(st.subcircuit_connectivity_map_key) : null)
     let seg = []
     const flush = () => {
       if (seg.length >= 2)
@@ -221,7 +224,7 @@ export function sesToElements(ses, { via } = {}) {
         y: Number(v[3]) * scale,
         outer_diameter: via?.d ?? 0.6,
         hole_diameter: via?.drill ?? 0.3,
-        layers: ["top", "bottom"],
+        layers: via?.layers ?? ["top", "bottom"],
         _net: name,
       })
     }

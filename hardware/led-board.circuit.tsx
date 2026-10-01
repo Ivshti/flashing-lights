@@ -21,16 +21,11 @@
 import { rel, place, round, type Pt, type Placement } from "./lib/geom"
 import { FP_LED3535_RGBA, DIE_ORDER, dieX, LED_ROW_Y, type Die } from "./lib/led3535"
 import { NMOS, OpAmp1, PCA9685, TapPad, WirePad } from "./lib/parts"
+import { BOARD, MOUNT_HOLES } from "./lib/stack"
 
 // ---------------------------------------------------------------- geometry
-export const BOARD = { w: 150, h: 90, r: 15 }
 export const COLS = [-45, -15, 15, 45]
 export const ROWS = [22, 0, -22]
-export const MOUNT_HOLES: Pt[] = [
-  { x: -69, y: 36 },
-  { x: 69, y: 36 },
-  { x: 0, y: -38 },
-]
 const STRIP_X = [-61.5, -30, 30, 61.5] // driver cluster per column
 const Y_VBOOST = 42.6
 const Y_VBAT = 39.0

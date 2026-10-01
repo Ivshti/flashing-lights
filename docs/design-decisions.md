@@ -1,6 +1,38 @@
-# Emergency RGB light: early design decisions
+# Emergency RGB light: design decisions
 
-Status: draft for discussion, nothing is frozen yet.
+## Decided (v0.1)
+
+| Question | Decision |
+|---|---|
+| Mounting | Inside the windshield: dash, visor, mirror or vacuum mount |
+| Power | Battery only: 2 × 18650 in series (2S) in holders, USB-C charging |
+| LEDs | 3535 RGBA 4-in-1 packages |
+| Market | Unrestricted, so colours and patterns are firmware choices |
+
+What changed from the first draft below, and why:
+
+* **Array: 4 × 3 instead of 5 × 3.** Sixteen channels fit one PCA9685. The 10 mm lens-free strips between 30 mm-pitch columns leave room for the drivers on the single-layer board.
+* **Drivers on the LED board:** the MOSFETs sit on the aluminium, as originally specified. Each string has an op-amp sink powered by its own PWM line.
+* **Interconnect: wires, not a header.** All copper on an MCPCB is on the LED side, so a header would point forward. Twelve short wires run through non-plated holes to plated pads on the control board instead.
+* **Rails:** VBAT drives R/A strings; a 10.5 V boost drives G/B, since three InGaN dies don't fit under 2S.
+* **Control board: 4 layers** with a GND plane. The extra layers cost little and let the autorouter finish.
+
+Estimated runtime for v0.1 on 2 × 18650 (`python3 tools/power_budget.py`). Assumptions: 12 packages at 335 mA per string, 10 Wh usable per cell, 80 % driver efficiency.
+
+| Mode | Avg LED power | 2 × 18650 |
+|---|---:|---:|
+| Red/blue wig-wag, whole array | 6.4 W | 2.4 h |
+| Left red / right blue split | 3.2 W | 4.7 h |
+| Amber traffic advisor | 2.7 W | 5.5 h |
+| White (R+G+B mixed) at 25 % | 8.5 W | 1.8 h |
+
+RGBA has no white die, so white light is the R+G+B mix. Full-power white would be about 34 W, so firmware has to derate it (and watch the LED-board NTC).
+
+Original draft below (kept for the reasoning):
+
+---
+
+Status: draft for discussion.
 Target: 150 × 90 mm rounded board for an authorized emergency vehicle. It runs on a battery, uses an ESP32, has a high-power RGB(W) array, and is visible through a windshield the way a dash or deck "can" light is.
 
 ---

@@ -6,9 +6,9 @@ LED datasheet and cells you actually pick.
 """
 
 # --- LED array -------------------------------------------------------------
-N_PACKAGES = 15          # 5 x 3 grid of 3535 RGBW 4-in-1 packages
-I_DIE_A = 0.35           # peak current per die
-VF = {"R": 2.2, "G": 3.2, "B": 3.1, "W": 3.1}   # forward voltage at I_DIE_A
+N_PACKAGES = 12          # 4 x 3 grid of 3535 RGBA 4-in-1 packages (v0.1)
+I_DIE_A = 0.335          # string current set by the sinks (0.33R, 27k/1k)
+VF = {"R": 2.2, "G": 3.2, "B": 3.1, "W": 2.2}   # W column = amber die here (v0.1 is RGBA)
 
 # --- system ----------------------------------------------------------------
 DRIVER_EFF = 0.80        # LED power / battery power (linear sinks on 2S, avg)
@@ -27,12 +27,11 @@ MODES = {
     "Wig-wag R/B, full array": N_PACKAGES * 0.30 * (die_w("R") + die_w("B")),
     # left half red / right half blue, alternating; each package one color
     "Split R/B (halves)": N_PACKAGES * 0.30 * (die_w("R") + die_w("B")) / 2,
-    # amber = R + G mixed, ~30 % on-time
-    "Amber traffic advisor": N_PACKAGES * 0.30 * (die_w("R") + 0.4 * die_w("G")),
-    # steady white flood, all W dies
-    "Steady white flood": N_PACKAGES * die_w("W"),
-    # steady white flood, firmware-derated to 50 %
-    "White flood @50%": N_PACKAGES * die_w("W") * 0.5,
+    # amber die, ~30 % on-time (traffic advisor)
+    "Amber traffic advisor": N_PACKAGES * 0.30 * die_w("W"),
+    # RGBA has no white die: white = R+G+B mixed; full current is ~34 W,
+    # far beyond the bare board's ~6-8 W, so firmware derates it
+    "RGB white flood @25%": N_PACKAGES * 0.25 * (die_w("R") + die_w("G") + die_w("B")),
 }
 
 

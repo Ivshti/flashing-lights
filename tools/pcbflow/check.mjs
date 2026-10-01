@@ -46,6 +46,18 @@ export function check(cj, { clearance = 0.2, eps = 0.005, holeClearance = 0.3 } 
     else ownerFirst.set(it.owner, i)
   })
 
+  // plane layers: everything of the plane's net that reaches the plane layer
+  // (vias, plated holes) is connected through the pour
+  const LNAME = { inner1: "In1.Cu", inner2: "In2.Cu", top: "F.Cu", bottom: "B.Cu" }
+  for (const pl of cj.filter((e) => e.type === "pcb_copper_pour" && e._plane)) {
+    let root = -1
+    items.forEach((it, i) => {
+      if (it.layer !== LNAME[pl.layer] || it.net !== pl._net) return
+      if (root < 0) root = i
+      else dsu.union(i, root)
+    })
+  }
+
   const violations = []
   const seen = new Set()
   for (const ids of grid.values())
@@ -96,6 +108,8 @@ export function check(cj, { clearance = 0.2, eps = 0.005, holeClearance = 0.3 } 
     const host = items.find((it) => it.kind === "pad" && shapeDist(it.shape, hc) === 0)
     items.forEach((it) => {
       if (host && it.net && it.net === host.net) return
+      // a footprint's own pegs/holes vs its own pads are the footprint's business
+      if (h.comp && it.kind === "pad" && it.owner && m.pads.find((pp) => pp.id === it.owner)?.el.pcb_component_id === h.comp) return
       const d = shapeDist(it.shape, { kind: "circle", c: { x: h.x, y: h.y }, r: h.d / 2 })
       if (d < holeClearance) violations.push({ type: "hole", d: +d.toFixed(3), a: it.ref, at: { x: h.x, y: h.y } })
     })
