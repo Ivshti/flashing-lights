@@ -81,6 +81,10 @@ export default {
     // BQ25887 BAT pins to the BAT cap C8 (the rest of VBATF is routed)
     { net: "VBATF", layer: "top", width: 0.25, pts: [{ x: -48.83, y: 19.25 }, { x: -48.83, y: 18.75 }] },
     { net: "VBATF", layer: "top", width: 0.6, pts: [{ x: -48.83, y: 18.75 }, { x: -48.5, y: 18.42 }, { x: -48.5, y: 14.09 }, { x: -46, y: 14.09 }] },
+    // charger BAT side to the pack side of the latch (Q1 source): bottom layer,
+    // between the button rows and under the BT1 holder body
+    { net: "VBATF", layer: "top", width: 0.5, pts: [{ x: 7.53, y: 35.64 }, { x: 5.6, y: 35.64 }] },
+    { net: "VBATF", layer: "bottom", width: 0.6, pts: [{ x: -47.3, y: 14.09 }, { x: -22, y: 14.09 }, { x: -22, y: 39.5 }, { x: 2.7, y: 39.5 }, { x: 5.6, y: 36.6 }, { x: 5.6, y: 35.64 }] },
     // BQ25887 west pins (0.5 mm pitch): fan out to two staggered columns of small vias
     ...U2_WEST.map(([net, y, x]) => ({ net, layer: "top", width: 0.2, pts: [{ x: -53.96, y }, { x, y }] })),
   ],
@@ -92,6 +96,8 @@ export default {
     { net: "BST_FB", x: 52.5, y: -5.9 },
     { net: "BST_FB", x: 41.55, y: -5.2 },
     { net: "VSYS", x: 48.75, y: -2.75 },
+    { net: "VBATF", x: -47.3, y: 14.09 },
+    { net: "VBATF", x: 5.6, y: 35.64 },
     { net: "VBUS", x: -53.8, y: 23.4 },
     { net: "VBUS", x: -53.0, y: 23.4 },
     { net: "VBUS", x: -48.8, y: 7 },
