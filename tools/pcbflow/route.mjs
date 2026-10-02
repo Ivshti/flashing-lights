@@ -14,7 +14,7 @@ import { pathToFileURL } from "node:url"
 import { toDsn, sesToElements } from "./dsn.mjs"
 import { check } from "./check.mjs"
 import { buildModel } from "./model.mjs"
-import { makePlanes, makeStubs } from "./planes.mjs"
+import { makePlanes, makePlaneVias, makeStubs } from "./planes.mjs"
 
 const cfgPath = path.resolve(process.argv[2])
 const cfg = (await import(pathToFileURL(cfgPath))).default
@@ -39,13 +39,37 @@ for (const [i, w] of (cfg.wires ?? []).entries())
     route: w.pts.map((p) => ({ route_type: "wire", x: p.x, y: p.y, width: w.width, layer: w.layer })),
     _net: w.net,
   })
+for (const [i, v] of (cfg.vias ?? []).entries())
+  cj.push({
+    type: "pcb_via",
+    pcb_via_id: `manual_via_${i}`,
+    x: v.x,
+    y: v.y,
+    outer_diameter: cfg.dsn.via.d,
+    hole_diameter: cfg.dsn.via.drill,
+    layers: cfg.dsn.via.layers,
+    _net: v.net,
+  })
+for (const pv of cfg.planeVias ?? []) {
+  const els = makePlaneVias(cj, pv)
+  cj.push(...els)
+  console.log(`plane vias (${pv.net}): ${els.filter((e) => e.type === "pcb_via").length}`)
+}
+// CONTINUE=<routed.json>: start from a previous Freerouting result (as
+// editable copper) so a second pass only has to close the leftovers
+if (process.env.CONTINUE) {
+  const prev = JSON.parse(fs.readFileSync(process.env.CONTINUE, "utf8"))
+  for (const e of prev)
+    if ((e.type === "pcb_trace" && e.pcb_trace_id.startsWith("fr_")) || (e.type === "pcb_via" && e.pcb_via_id.startsWith("fr_")))
+      cj.push({ ...e, _editable: true })
+}
 const { dsn, nets } = toDsn(cj, cfg.dsn)
 const dsnFile = path.join(out, `${cfg.name}.dsn`)
 const sesFile = path.join(out, `${cfg.name}.ses`)
 fs.writeFileSync(dsnFile, dsn)
 console.log(`DSN: ${nets.size} nets -> ${dsnFile}`)
 
-if (!process.env.SKIP_ROUTE) {
+if (!process.env.SKIP_ROUTE && !process.env.PRECHECK) {
   const java = process.env.JAVA ?? "/usr/lib/jvm/java-25-openjdk-amd64/bin/java"
   const jar = path.resolve(path.dirname(new URL(import.meta.url).pathname), "../bin/freerouting.jar")
   const args = [
@@ -74,8 +98,10 @@ if (!process.env.SKIP_ROUTE) {
   console.log(`Freerouting done in ${((Date.now() - t0) / 1000).toFixed(0)} s`)
 }
 
-const ses = fs.readFileSync(sesFile, "utf8")
-const routed = sesToElements(ses, { via: cfg.dsn.via })
+// PRECHECK=1: no routing, just DRC the hand-placed copper (stubs, wires, vias)
+const routed = process.env.PRECHECK
+  ? cj.filter((e) => e.type === "pcb_trace" || e.type === "pcb_via")
+  : sesToElements(fs.readFileSync(sesFile, "utf8"), { via: cfg.dsn.via })
 // Freerouting writes back the protected wires as well, so drop ours
 const base = cj.filter((e) => e.type !== "pcb_trace" && e.type !== "pcb_via" && !/error|warning/.test(e.type))
 const result = [...base, ...routed]

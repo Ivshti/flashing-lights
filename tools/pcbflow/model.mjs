@@ -94,6 +94,16 @@ export function buildModel(cj) {
       drill: e.type === "pcb_plated_hole" ? holeDiameter(e) : 0,
     })
   }
+  // un-netted plated holes inside a pad of the same footprint (thermal vias in
+  // an exposed pad) belong to that pad's net
+  for (const p of pads) {
+    if (p.net || p.el.type !== "pcb_plated_hole") continue
+    const host = pads.find(
+      (q) => q !== p && q.net && q.el.pcb_component_id === p.el.pcb_component_id && q.el.type === "pcb_smtpad" &&
+        Math.abs(q.el.x - p.el.x) < (q.el.width ?? 0) / 2 && Math.abs(q.el.y - p.el.y) < (q.el.height ?? 0) / 2,
+    )
+    if (host) p.net = host.net
+  }
   const holes = cj.filter((e) => e.type === "pcb_hole").map((h) => ({ x: h.x, y: h.y, d: holeDiameter(h), comp: h.pcb_component_id }))
   return { board, allLayers, pads, holes, keyName }
 }

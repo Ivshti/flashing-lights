@@ -140,7 +140,7 @@ export function toDsn(cj, opts) {
     const flush = () => {
       if (seg.length >= 2)
         L.push(
-          `    (wire (path ${seg[0].layer} ${n(seg[0].width)} ${seg.map((p) => `${n(p.x)} ${n(p.y)}`).join(" ")})${net ? ` (net ${q(net)})` : ""} (type protect))`,
+          `    (wire (path ${seg[0].layer} ${n(seg[0].width)} ${seg.map((p) => `${n(p.x)} ${n(p.y)}`).join(" ")})${net ? ` (net ${q(net)})` : ""} (type ${t._editable ? "route" : "protect"}))`,
         )
       seg = []
     }
@@ -155,6 +155,8 @@ export function toDsn(cj, opts) {
     }
     flush()
   }
+  for (const v of cj.filter((e) => e.type === "pcb_via"))
+    L.push(`    (via ${q(via)} ${n(v.x)} ${n(v.y)}${v._net ? ` (net ${q(v._net)})` : ""} (type ${v._editable ? "route" : "protect"}))`)
   L.push(`  )`, `)`)
   return { dsn: L.join("\n") + "\n", nets, model: m }
 }
