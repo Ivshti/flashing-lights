@@ -83,6 +83,7 @@ export function makeStubs(cj, stubs) {
   let k = 0
   for (const st of stubs)
     for (const p of m.pads.filter((pp) => pp.comp === st.comp && st.pins.includes(pp.pin))) {
+      if (!(p.el.width > 0 && p.el.height > 0)) continue // polygon pads: no stub
       const c = pcomp.get(p.el.pcb_component_id).center
       const dx = p.el.x - c.x
       const dy = p.el.y - c.y

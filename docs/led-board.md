@@ -40,6 +40,21 @@ All copper is placed procedurally in the board file. No autorouter is used: Free
 5. **PCA9685 fan-out:** goes down the centre strip and outward along the bottom edge. The bundles for the outer clusters follow the rounded corners.
 6. **Thermal:** with no ground plane available, heat leaves the LEDs through their pads and string copper into the aluminium.
 
+### Heat in the sinks
+
+Each sink MOSFET drops whatever voltage the string doesn't use:
+
+| String | Supply | String + sense | Drop at 335 mA (worst case) |
+|---|---|---|---|
+| R / A (3 × AlInGaP, ≈ 2.1 V each) | VBAT, 6.0–8.4 V | ≈ 6.4 V | up to ≈ 0.7 W at a full pack |
+| G / B (3 × InGaN, ≈ 3.0 V each) | VBOOST, 8.9–11.4 V | ≈ 9.1 V | ≈ 0.5 W at 10.5 V; ≈ 0.1 W trimmed to 9.4 V |
+
+A SOT-23 on aluminium handles 0.7 W at low duty, but not with all 16 channels on continuously. Firmware should:
+
+* trim VBOOST down to just above the G/B string voltage (see the control board's `BOOST_TRIM`);
+* cap the total duty, and fold back on the LED-board NTC;
+* expect R/A strings to dim slightly near an empty pack (below about 6.5 V), where the sink runs out of headroom.
+
 DRC: `npm run led:drc` checks connectivity of every net and 0.2 mm copper clearance with a geometric checker (`tools/pcbflow/check.mjs`). It reports **0 unconnected nets and 0 violations**. An independent Gerber parser (gerbonara) re-reads the output (`npm run led:fab`).
 
 ## Wires to the control board (12)

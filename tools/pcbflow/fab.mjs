@@ -38,14 +38,17 @@ const EXT = {
 const files = convertCircuitJsonToGerberFiles(cj)
 const name = bomCfg.name
 const written = []
-for (const [f, content] of Object.entries(files)) {
+for (let [f, content] of Object.entries(files)) {
   let out
+  if (/_Fab\.gbr$/.test(f)) continue // fab-drawing layers: not needed by JLC, confuse layer guessers
   if (EXT[f]) {
     if (layers === 1 && f.startsWith("B_")) continue // single-sided MCPCB
     out = `${name}.${EXT[f]}`
   } else if (/npth/i.test(f)) out = `${name}-NPTH.DRL`
   else if (/\.drl$/i.test(f)) out = `${name}-PTH.DRL`
   else out = `${name}-${f}`
+  // Excellon slots: CAM tools (and gerbonara) want "X..Y..G85X..Y.." on one line
+  if (out.endsWith(".DRL")) content = content.replace(/^(X[-\d.]+Y[-\d.]+)\r?\n(G85X)/gm, "$1$2")
   fs.writeFileSync(path.join(gdir, out), content)
   written.push(out)
 }

@@ -75,7 +75,25 @@ Routing is done by Freerouting (`npm run ctl:route`), driven by `tools/pcbflow`:
 5. The L2 plane is generated as a copper pour with clearance rings around every non-GND via and hole.
 6. The same geometric DRC as the LED board checks connectivity (counting the plane) and clearances.
 
-Short narrow stubs are pre-routed out of the QFN power pins, so the wide power traces can attach away from neighbouring pins.
+Copper placed in code before Freerouting runs (all in [`control-board.route.mjs`](../hardware/control-board.route.mjs)):
+
+* **Fan-out stubs** out of the fine-pitch USB-C, BQ25887 and TPS61089 pins, so the wide power traces attach away from neighbouring pins.
+* **GND plane vias:** one next to every SMD GND pad, plus a via grid inside each QFN exposed pad. Freerouting never has to route GND, and the switching loops close through the plane directly under them.
+* **Hand-routed power:**
+  * the 1.5 mm PACK+ and MID links;
+  * the charger's switch node and PMID bus;
+  * the boost converter's VOUT bus across its output caps;
+  * the 1.5 mm VBOOST feed to the LED-board wire pad W2, on L4.
+
+  Freerouting kept leaving these unfinished or narrow, so they are fixed geometry. The router sees them as protected wires.
+* The ESP32 antenna area is a keep-out on every layer, including the plane.
+
+`npm run ctl:route` runs everything above, then Freerouting, then the DRC. Useful switches:
+
+| Variable | Effect |
+|---|---|
+| `PRECHECK=1` | Skip routing and DRC the hand-placed copper only |
+| `CONTINUE=<routed.json>` | Start a second pass from an earlier result |
 
 ## Values to verify against datasheets
 

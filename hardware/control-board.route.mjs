@@ -68,7 +68,7 @@ export default {
   stubs: [
     { comp: "J1", pins: ["5", "6", "11", "12", "13", "14", "19", "20"], len: 0.6 },
     { comp: "U2", pins: ["7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "21", "22", "23"], len: 0.8 },
-    { comp: "U3", pins: ["5", "6", "9", "11"], len: 0.8 },
+    { comp: "U3", pins: ["5", "6", "9"], len: 0.8 },
   ],
   planes: [{ net: "GND", layer: "inner1", clearance: 0.3, edge: 0.5, keepouts: [ANTENNA] }],
   // one via per SMD GND pad into the In1 plane, placed before routing
