@@ -162,7 +162,7 @@ R("R19", "10k", "0402", 42.4, -4.6, 90, "BST_FB", "GND")
 R("R20", "100k", "0402", 36.5, -8, 90, "BST_TRIM_F", "BST_FB")
 R("R21", "10k", "0402", 34.8, -8, 90, "BOOST_TRIM", "BST_TRIM_F")
 C("C20", "1uF", "0402", 36.5, -11, 90, "BST_TRIM_F", "GND")
-R("R22", "100k", "0402", 51.3, -6.6, 90, "BOOST_EN", "GND")
+R("R22", "100k", "0402", 54, -3.6, 90, "BOOST_EN", "GND")
 
 // ---------------------------------------------------------------- 3V3 buck
 U("U4", FP_TSOT_23_6, AP63203_PINS, 45, -24, 0, { IN: "VSYS", EN: "VSYS", GND: "GND", SW: "BUCK_SW", BST: "BUCK_BST", FB: "V3V3" }, "AP63203WU-7")
@@ -173,7 +173,7 @@ C("C23", "22uF", "0805", 56, -24, 90, "V3V3", "GND")
 C("C24", "22uF", "0805", 58.5, -24, 90, "V3V3", "GND")
 
 // ---------------------------------------------------------------- ESP32-S3 (bottom side, antenna at the top edge)
-U("U5", FP_ESP32_S3_WROOM_1, ESP32S3_PINS, 45, 31, 0, {
+U("U5", FP_ESP32_S3_WROOM_1, ESP32S3_PINS, 52.5, 31, 0, {
   GND1: "GND", GND2: "GND", GND3: "GND", V3V3: "V3V3", EN: "ESP_EN",
   IO4: "VSYS_ADC", IO5: "VBST_ADC", IO6: "NTC_LED", IO7: "CC1_ADC", IO8: "CC2_ADC",
   IO15: "PCA_OE", IO16: "CHG_INT", IO17: "CHG_PG", IO18: "CHG_CD",
@@ -181,13 +181,13 @@ U("U5", FP_ESP32_S3_WROOM_1, ESP32S3_PINS, 45, 31, 0, {
   IO11: "PWR_HOLD", IO12: "BOOST_EN", IO13: "BOOST_TRIM", IO14: "LED_STAT",
   IO0: "BTN2", IO38: "BTN1_SNS", IO39: "BTN3", IO40: "BTN4", TXD0: "TXD0", RXD0: "RXD0",
 }, "ESP32-S3-WROOM-1-N8", "bottom")
-C("C25", "10uF", "0805", 33, 38, 90, "V3V3", "GND", "bottom")
-C("C26", "100nF", "0402", 33, 35, 90, "V3V3", "GND", "bottom")
-R("R23", "10k", "0402", 33, 31, 90, "V3V3", "ESP_EN", "bottom")
-C("C27", "1uF", "0402", 33, 28, 90, "ESP_EN", "GND", "bottom")
-R("R24", "10k", "0402", 33, 24, 90, "V3V3", "BTN2", "bottom")
-R("R25", "1k", "0402", 33, 14, 90, "LED_STAT", "LED_ST_A", "bottom")
-LED("D5", "green", 33, 11, "LED_ST_A", "GND")
+C("C25", "10uF", "0805", 40.5, 35.5, 90, "V3V3", "GND", "bottom")
+C("C26", "100nF", "0402", 40.5, 32.5, 90, "V3V3", "GND", "bottom")
+R("R23", "10k", "0402", 40.5, 30.5, 90, "V3V3", "ESP_EN", "bottom")
+C("C27", "1uF", "0402", 40.5, 28, 90, "ESP_EN", "GND", "bottom")
+R("R24", "10k", "0402", 40.5, 24, 90, "V3V3", "BTN2", "bottom")
+R("R25", "1k", "0402", 40.5, 14, 90, "LED_STAT", "LED_ST_A", "bottom")
+LED("D5", "green", 40.5, 11, "LED_ST_A", "GND")
 
 // sensing
 R("R26", "100k", "0402", 30, 6, 90, "VSYS", "VSYS_ADC")

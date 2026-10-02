@@ -1,5 +1,5 @@
 // Freerouting setup for the 4-layer control board (In1 = GND plane).
-const ANTENNA = { x1: 35.5, y1: 37.5, x2: 54.5, y2: 45 } // ESP32-S3 antenna keepout
+const ANTENNA = { x1: 43, y1: 37.5, x2: 62, y2: 45 } // ESP32-S3 antenna keepout
 export default {
   name: "control-board",
   root: "..",
