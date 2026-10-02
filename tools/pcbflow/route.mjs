@@ -38,6 +38,7 @@ for (const [i, w] of (cfg.wires ?? []).entries())
     pcb_trace_id: `manual_${i}`,
     route: w.pts.map((p) => ({ route_type: "wire", x: p.x, y: p.y, width: w.width, layer: w.layer })),
     _net: w.net,
+    ...(w.innerOk ? { _innerOk: true } : {}),
   })
 for (const [i, v] of (cfg.vias ?? []).entries())
   cj.push({
@@ -102,6 +103,11 @@ if (!process.env.SKIP_ROUTE && !process.env.PRECHECK) {
 const routed = process.env.PRECHECK
   ? cj.filter((e) => e.type === "pcb_trace" || e.type === "pcb_via")
   : sesToElements(fs.readFileSync(sesFile, "utf8"), { via: cfg.dsn.via })
+// protected wires come back from Freerouting without our flags: re-tag the
+// ones allowed on inner layers by their geometry
+const key = (x, y) => `${Math.round(x * 100)},${Math.round(y * 100)}`
+const innerOkPts = new Set((cfg.wires ?? []).filter((w) => w.innerOk).flatMap((w) => w.pts.map((p) => key(p.x, p.y))))
+for (const t of routed) if (t.type === "pcb_trace" && t.route.every((p) => innerOkPts.has(key(p.x, p.y)))) t._innerOk = true
 // Freerouting writes back the protected wires as well, so drop ours
 const base = cj.filter((e) => e.type !== "pcb_trace" && e.type !== "pcb_via" && !/error|warning/.test(e.type))
 const result = [...base, ...routed]

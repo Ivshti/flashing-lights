@@ -4,6 +4,7 @@ const U2_WEST = [
   ["CHG_PG", 21.25, -54.95], ["CHG_STAT", 20.75, -55.65], ["CHG_CD", 20.25, -54.95],
   ["SDA", 19.75, -55.65], ["SCL", 19.25, -54.95], ["CHG_INT", 18.75, -55.65],
 ]
+const OUTER = ["F.Cu", "B.Cu"]
 const ANTENNA = { x1: 43, y1: 37.5, x2: 62, y2: 45 } // ESP32-S3 antenna keepout
 export default {
   name: "control-board",
@@ -20,12 +21,13 @@ export default {
     via: { d: 0.6, drill: 0.3, layers: ["top", "inner1", "inner2", "bottom"] },
     planes: [{ net: "GND", layer: "In1.Cu" }],
     keepouts: [ANTENNA],
+    // amp-level nets stay on the outer layers: JLC's inner copper is 0.5 oz
     classes: [
-      { name: "batt", match: /^(PACKP|VSYS)$/, width: 0.8, clearance: 0.2 },
-      { name: "vbatf", match: /^VBATF$/, width: 0.5, clearance: 0.2 },
+      { name: "batt", match: /^(PACKP|VSYS)$/, width: 0.8, clearance: 0.2, layers: OUTER },
+      { name: "vbatf", match: /^VBATF$/, width: 0.5, clearance: 0.2, layers: OUTER },
       { name: "mid", match: /^MID$/, width: 0.3 },
-      { name: "boost", match: /^(VBOOST|BST_SW)$/, width: 0.8, clearance: 0.2 },
-      { name: "charger", match: /^(VBUS|PMID|CHG_SW|CHG_SNS)$/, width: 0.5, clearance: 0.2 },
+      { name: "boost", match: /^(VBOOST|BST_SW)$/, width: 0.8, clearance: 0.2, layers: OUTER },
+      { name: "charger", match: /^(VBUS|PMID|CHG_SW|CHG_SNS)$/, width: 0.5, clearance: 0.2, layers: OUTER },
       { name: "gnd", match: /^GND$/, width: 0.4 },
       { name: "logic_pwr", match: /^(V3V3|BUCK_SW)$/, width: 0.4 },
     ],
@@ -46,7 +48,7 @@ export default {
     { net: "CHG_SNS", layer: "top", width: 0.25, pts: [{ x: -48.85, y: 20.25 }, { x: -48.85, y: 19.75 }] },
     { net: "CHG_SNS", layer: "top", width: 0.4, pts: [{ x: -48.85, y: 19.75 }, { x: -45.5, y: 19.75 }, { x: -45.5, y: 19.04 }, { x: -43, y: 19.04 }] },
     { net: "CHG_SW", layer: "top", width: 0.3, pts: [{ x: -47.5, y: 17.51 }, { x: -46.9, y: 17.9 }] },
-    { net: "CHG_SW", layer: "inner2", width: 0.3, pts: [{ x: -46.9, y: 17.9 }, { x: -46.9, y: 23.2 }, { x: -46.6, y: 23.5 }] },
+    { net: "CHG_SW", layer: "inner2", width: 0.3, innerOk: true /* bootstrap cap only */, pts: [{ x: -46.9, y: 17.9 }, { x: -46.9, y: 23.2 }, { x: -46.6, y: 23.5 }] },
     { net: "CHG_MID", layer: "top", width: 0.25, pts: [{ x: -52.25, y: 16.85 }, { x: -52.25, y: 15.6 }] },
     { net: "CHG_MID", layer: "bottom", width: 0.25, pts: [{ x: -52.25, y: 15.6 }, { x: -52.25, y: 14.31 }] },
     // TPS61089 (U3 at (46, -3)): VOUT bus to the output caps, SW to L2 / C16 / R15, VIN to C12
@@ -71,6 +73,14 @@ export default {
     { net: "BST_FB", layer: "top", width: 0.2, pts: [{ x: 41.55, y: -5.2 }, { x: 42.4, y: -5.11 }] },
     // BQ25887 VBUS pin + C1 are boxed in by PMID and PSEL: via down
     { net: "VBUS", layer: "top", width: 0.3, pts: [{ x: -52.75, y: 23.15 }, { x: -52.75, y: 23.4 }, { x: -54.77, y: 23.4 }] },
+    // USB VBUS from D3 to the charger's VBUS pin: 1 mm on the bottom (up to 3 A)
+    { net: "VBUS", layer: "top", width: 1.0, pts: [{ x: -48, y: 5 }, { x: -48, y: 7 }] },
+    { net: "VBUS", layer: "top", width: 0.8, pts: [{ x: -48.8, y: 7 }, { x: -47.2, y: 7 }] },
+    { net: "VBUS", layer: "bottom", width: 1.0, pts: [{ x: -48.8, y: 7 }, { x: -47.2, y: 7 }] },
+    { net: "VBUS", layer: "bottom", width: 1.0, pts: [{ x: -48, y: 7 }, { x: -49.2, y: 8.2 }, { x: -49.2, y: 22.4 }, { x: -50.2, y: 23.4 }, { x: -53.8, y: 23.4 }] },
+    // BQ25887 BAT pins to the BAT cap C8 (the rest of VBATF is routed)
+    { net: "VBATF", layer: "top", width: 0.25, pts: [{ x: -48.83, y: 19.25 }, { x: -48.83, y: 18.75 }] },
+    { net: "VBATF", layer: "top", width: 0.6, pts: [{ x: -48.83, y: 18.75 }, { x: -48.5, y: 18.42 }, { x: -48.5, y: 14.09 }, { x: -46, y: 14.09 }] },
     // BQ25887 west pins (0.5 mm pitch): fan out to two staggered columns of small vias
     ...U2_WEST.map(([net, y, x]) => ({ net, layer: "top", width: 0.2, pts: [{ x: -53.96, y }, { x, y }] })),
   ],
@@ -83,6 +93,10 @@ export default {
     { net: "BST_FB", x: 41.55, y: -5.2 },
     { net: "VSYS", x: 48.75, y: -2.75 },
     { net: "VBUS", x: -53.8, y: 23.4 },
+    { net: "VBUS", x: -53.0, y: 23.4 },
+    { net: "VBUS", x: -48.8, y: 7 },
+    { net: "VBUS", x: -48, y: 7 },
+    { net: "VBUS", x: -47.2, y: 7 },
     ...U2_WEST.map(([net, y, x]) => ({ net, x, y, d: 0.45, drill: 0.2 })),
     // U3 GND pin is boxed in by its neighbours and the VOUT bus: via on the end of its stub
     { net: "GND", x: 45.35, y: -5.1 },
@@ -105,5 +119,5 @@ export default {
     },
   ],
   freerouting: { passes: 80, threads: 4, timeoutS: 2400 },
-  check: { clearance: 0.14, holeClearance: 0.25, minTrace: 0.1 },
+  check: { clearance: 0.14, holeClearance: 0.25, minTrace: 0.1, outerOnly: /^(PACKP|VSYS|VBATF|VBOOST|BST_SW|VBUS|PMID|CHG_SW|CHG_SNS)$/ },
 }

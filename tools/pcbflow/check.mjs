@@ -16,7 +16,7 @@ class DSU {
   }
 }
 
-export function check(cj, { clearance = 0.2, eps = 0.005, holeClearance = 0.3, edgeClearance = 0.3, edgeExempt = [], minTrace = 0.127, minDrill = 0.2, minAnnular = 0.13 } = {}) {
+export function check(cj, { clearance = 0.2, eps = 0.005, holeClearance = 0.3, edgeClearance = 0.3, edgeExempt = [], minTrace = 0.127, minDrill = 0.2, minAnnular = 0.13, outerOnly = null } = {}) {
   const m = buildModel(cj)
   // items: one per (pad, layer) and per trace segment / via layer
   const items = []
@@ -129,6 +129,10 @@ export function check(cj, { clearance = 0.2, eps = 0.005, holeClearance = 0.3, e
     })
     if (dmin < edgeClearance - eps) violations.push({ type: "edge", d: +dmin.toFixed(3), a: it.ref, nets: [it.net], at: center(it.shape) })
   })
+  // high-current nets must not run on (thin) inner copper
+  if (outerOnly)
+    for (const t of traceItems(cj))
+      if (!t.via && !t.innerOk && /^In\d/.test(t.layer) && outerOnly.test(t.net ?? "")) violations.push({ type: "inner-power", a: t.trace, nets: [t.net], at: center(t.shape) })
   // fab minimums (JLCPCB standard process)
   for (const t of cj.filter((e) => e.type === "pcb_trace"))
     for (const p of t.route) if (p.route_type === "wire" && p.width < minTrace - eps) violations.push({ type: "width", d: p.width, a: t.pcb_trace_id, at: p })

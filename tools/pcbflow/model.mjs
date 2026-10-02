@@ -122,6 +122,7 @@ export function traceItems(cj) {
         trace: t.pcb_trace_id,
         layer: LAYER[a.layer] ?? a.layer,
         net: t._net,
+        innerOk: t._innerOk,
         shape: { kind: "seg", a: { x: a.x, y: a.y }, b: { x: b.x, y: b.y }, r: (a.width ?? 0.2) / 2 },
       })
     }

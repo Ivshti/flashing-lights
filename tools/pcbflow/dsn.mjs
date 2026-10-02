@@ -124,7 +124,7 @@ export function toDsn(cj, opts) {
     members.forEach((k) => assigned.add(k))
     if (!members.length) continue
     L.push(
-      `    (class ${q(c.name)} ${members.map(q).join(" ")} (circuit (use_via ${q(via)})) (rule (width ${n(c.width)}) (clearance ${n(c.clearance ?? opts.clearance)})))`,
+      `    (class ${q(c.name)} ${members.map(q).join(" ")} (circuit (use_via ${q(via)})${c.layers ? ` (use_layer ${c.layers.join(" ")})` : ""}) (rule (width ${n(c.width)}) (clearance ${n(c.clearance ?? opts.clearance)})))`,
     )
   }
   const rest = [...nets.keys()].filter((k) => !assigned.has(k))
