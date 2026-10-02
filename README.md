@@ -39,11 +39,17 @@ npm run ctl                  # build + autoroute + Gerbers/BOM/CPL for the contr
 * **LED board:** upload `fab/led-board/led-board-gerbers.zip`.
   * Base material **Aluminium**, 1 layer, 1.6 mm, 1 oz, white mask.
   * SMT assembly with `led-board-BOM.csv` and `led-board-CPL.csv`.
+  * The RGBA LEDs are not stocked by LCSC. Order generic ceramic 3535 RGBA 4 × 1 W parts and consign them, or reflow them yourself. See [docs/led-board.md](docs/led-board.md).
 * **Control board:** upload `fab/control-board/control-board-gerbers.zip`.
-  * 4 layers, 1.6 mm, 2 oz outer copper recommended.
-  * Double-sided assembly. The THT holders and buttons can be hand-soldered.
-* **Before ordering, work through the verify lists in both board docs.** Several BOM lines have no LCSC number yet. JLC's CPL rotation must also be checked in their preview.
+  * 4 layers, 1.6 mm. 2 oz outer copper recommended: all amp-level nets are on the outer layers.
+  * Standard PCBA (the ESP32 module needs it), double-sided, with `control-board-BOM.csv` and `control-board-CPL.csv`.
+  * Parts to supply yourself: the 18650 holders (not on LCSC). The THT buttons can go through JLC's THT service or be hand-soldered.
+* **Before ordering, work through the verify lists in both board docs**, and check JLC's CPL rotations in their preview.
 
 ## Status
 
-v0.1 is a complete, DRC-clean layout that has **not been built or tested**. Several parts were chosen without access to their datasheets: the LED part, BQ25887 and TPS61089 component values, and the fuse and holder footprints. Those parts are listed as "verify" items in the board docs.
+v0.1 is a complete layout that has **not been built or tested**. The DRC checks connectivity, clearances, board-edge clearance, JLC minimums, and that power stays off the inner layers.
+
+* The BQ25887, TPS61089, AP63203 and LMV321 values and pinouts were checked against datasheet copies; [docs/control-board.md](docs/control-board.md) has the table.
+* LCSC numbers were taken from LCSC/JLC listings. Stock levels were not checked live.
+* Still unverified: the RGBA LED footprint (part not chosen), the AO4407A/AO3400A pinouts (secondary sources only), and the 18650 holder footprint.

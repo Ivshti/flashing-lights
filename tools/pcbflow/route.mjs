@@ -39,6 +39,9 @@ for (const [i, w] of (cfg.wires ?? []).entries())
     route: w.pts.map((p) => ({ route_type: "wire", x: p.x, y: p.y, width: w.width, layer: w.layer })),
     _net: w.net,
     ...(w.innerOk ? { _innerOk: true } : {}),
+    // editable: Freerouting may move it, and (unlike protected wires) counts it
+    // as connecting the pin it starts on
+    ...(w.editable ? { _editable: true } : {}),
   })
 for (const [i, v] of (cfg.vias ?? []).entries())
   cj.push({
@@ -50,6 +53,7 @@ for (const [i, v] of (cfg.vias ?? []).entries())
     hole_diameter: v.drill ?? cfg.dsn.via.drill,
     layers: cfg.dsn.via.layers,
     _net: v.net,
+    ...(v.editable ? { _editable: true } : {}),
   })
 for (const pv of cfg.planeVias ?? []) {
   const els = makePlaneVias(cj, pv)

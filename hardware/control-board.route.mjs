@@ -86,7 +86,7 @@ export default {
     { net: "VBATF", layer: "top", width: 0.5, pts: [{ x: 7.53, y: 35.64 }, { x: 5.6, y: 35.64 }] },
     { net: "VBATF", layer: "bottom", width: 0.6, pts: [{ x: -47.3, y: 14.09 }, { x: -22, y: 14.09 }, { x: -22, y: 39.5 }, { x: 2.7, y: 39.5 }, { x: 5.6, y: 36.6 }, { x: 5.6, y: 35.64 }] },
     // BQ25887 west pins (0.5 mm pitch): fan out to two staggered columns of small vias
-    ...U2_WEST.map(([net, y, x]) => ({ net, layer: "top", width: 0.2, pts: [{ x: -53.96, y }, { x, y }] })),
+    ...U2_WEST.map(([net, y, x]) => ({ net, layer: "top", width: 0.2, editable: true, pts: [{ x: -53.965, y }, { x, y }] })),
   ],
   vias: [
     { net: "CHG_SW", x: -46.9, y: 17.9 },
@@ -103,7 +103,7 @@ export default {
     { net: "VBUS", x: -48.8, y: 7 },
     { net: "VBUS", x: -48, y: 7 },
     { net: "VBUS", x: -47.2, y: 7 },
-    ...U2_WEST.map(([net, y, x]) => ({ net, x, y, d: 0.45, drill: 0.2 })),
+    ...U2_WEST.map(([net, y, x]) => ({ net, x, y, d: 0.45, drill: 0.2, editable: true })),
     // U3 GND pin is boxed in by its neighbours and the VOUT bus: via on the end of its stub
     { net: "GND", x: 45.35, y: -5.1 },
   ],
