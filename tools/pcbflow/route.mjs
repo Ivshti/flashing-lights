@@ -74,7 +74,10 @@ const sesFile = path.join(out, `${cfg.name}.ses`)
 fs.writeFileSync(dsnFile, dsn)
 console.log(`DSN: ${nets.size} nets -> ${dsnFile}`)
 
-if (!process.env.SKIP_ROUTE && !process.env.PRECHECK) {
+// FROM_SES=<file>: replay a saved Freerouting session instead of routing
+// (Freerouting is multithreaded, so two runs rarely give the same result)
+if (process.env.FROM_SES) fs.copyFileSync(path.resolve(process.env.FROM_SES), sesFile)
+if (!process.env.SKIP_ROUTE && !process.env.PRECHECK && !process.env.FROM_SES) {
   const java = process.env.JAVA ?? "/usr/lib/jvm/java-25-openjdk-amd64/bin/java"
   const jar = path.resolve(path.dirname(new URL(import.meta.url).pathname), "../bin/freerouting.jar")
   const args = [

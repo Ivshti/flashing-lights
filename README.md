@@ -29,7 +29,8 @@ fab/                   generated Gerbers, drills, BOM and CPL for JLCPCB
 npm install
 tools/fetch-freerouting.sh   # Freerouting 2.4.1 (needs Java 25) for the control board
 npm run led                  # build + DRC + Gerbers/BOM/CPL for the LED board
-npm run ctl                  # build + autoroute + Gerbers/BOM/CPL for the control board
+npm run ctl                  # build + replay saved route + Gerbers/BOM/CPL for the control board
+npm run ctl:route            # re-run Freerouting from scratch (~6 min)
 ```
 
 `tools/pcbflow/render.mjs <circuit.json> <out-prefix> [width] [top|bottom]` writes a PNG preview. `tools/pcbflow/gerbercheck.py` re-reads the Gerbers with an independent parser.

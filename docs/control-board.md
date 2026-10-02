@@ -91,12 +91,34 @@ Copper placed in code before Freerouting runs (all in [`control-board.route.mjs`
   Freerouting kept leaving these unfinished or narrow, so they are fixed geometry. The router sees them as protected wires.
 * The ESP32 antenna area is a keep-out on every layer, including the plane.
 
-`npm run ctl:route` runs everything above, then Freerouting, then the DRC. Useful switches:
+* **Fan-out of the BQ25887's 0.5 mm-pitch west pins:** two staggered columns of 0.45/0.2 mm vias. These stubs are *editable*, because Freerouting does not count a protected wire as connecting a pin.
+* **Power stays on the outer layers.** JLC's inner copper is 0.5 oz, so the pack, VSYS, VBAT, boost and charger classes are restricted to F.Cu/B.Cu. The DRC enforces it.
+  * Hand-routed on the bottom: VBUS (1 mm, D3 → charger, with three vias at each end), the charger's BAT branch to Q1, and the 1.5 mm VBOOST feed.
+
+Result: about 490 wires and 154 vias. **DRC: 0 unconnected nets, 0 violations.** The DRC covers:
+* 0.14 mm copper clearance;
+* 0.25 mm hole clearance;
+* 0.3 mm board-edge clearance;
+* JLC minimums (0.1 mm trace, 0.2 mm drill);
+* no power on inner layers.
+
+Freerouting is multithreaded, so two runs rarely produce the same board. The session that produced the committed Gerbers is saved as [`hardware/control-board.ses`](../hardware/control-board.ses):
+
+* `npm run ctl` rebuilds from it (`ctl:replay`).
+* `npm run ctl:route` routes from scratch. Replace the `.ses` only with a result that passes the DRC.
+
+Useful switches:
 
 | Variable | Effect |
 |---|---|
 | `PRECHECK=1` | Skip routing and DRC the hand-placed copper only |
 | `CONTINUE=<routed.json>` | Start a second pass from an earlier result |
+| `FROM_SES=<file>` | Replay a saved Freerouting session |
+
+![top](img/control-board-top.png)
+![bottom](img/control-board-bottom.png)
+![In1 GND plane](img/control-board-in1-gnd.png)
+![In2](img/control-board-in2.png)
 
 ## Datasheet check
 

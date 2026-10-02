@@ -57,6 +57,8 @@ A SOT-23 on aluminium handles 0.7 W at low duty, but not with all 16 channels on
 
 DRC: `npm run led:drc` checks connectivity of every net and 0.2 mm copper clearance with a geometric checker (`tools/pcbflow/check.mjs`). It reports **0 unconnected nets and 0 violations**. An independent Gerber parser (gerbonara) re-reads the output (`npm run led:fab`).
 
+![LED board](img/led-board.png)
+
 ## Wires to the control board (12)
 
 Each wire pad is a copper ring around a non-plated hole. The insulated wire comes through the aluminium from the back and is soldered on the copper side.

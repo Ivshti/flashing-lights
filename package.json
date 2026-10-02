@@ -6,15 +6,16 @@
     "doc": "docs"
   },
   "scripts": {
-    "led:build": "cd hardware && tsci build led-board.circuit.tsx --routing-disabled --disable-parts-engine",
+    "led:build": "cd hardware && tsci build led-board.circuit.tsx --routing-disabled --disable-parts-engine; node ../tools/pcbflow/builderrors.mjs ../dist/hardware/led-board/circuit.json",
     "led:drc": "node tools/pcbflow/drc.mjs dist/hardware/led-board/circuit.json",
     "led:fab": "node tools/pcbflow/fab.mjs dist/hardware/led-board/circuit.json hardware/led-board.bom.mjs fab/led-board && python3 tools/pcbflow/gerbercheck.py fab/led-board/gerber build/led-gerber-top.svg",
     "led": "npm run led:build && npm run led:drc && npm run led:fab",
-    "ctl:build": "cd hardware && tsci build control-board.circuit.tsx --routing-disabled --disable-parts-engine",
+    "ctl:build": "cd hardware && tsci build control-board.circuit.tsx --routing-disabled --disable-parts-engine; node ../tools/pcbflow/builderrors.mjs ../dist/hardware/control-board/circuit.json",
     "ctl:route": "node tools/pcbflow/route.mjs hardware/control-board.route.mjs",
+    "ctl:replay": "FROM_SES=hardware/control-board.ses node tools/pcbflow/route.mjs hardware/control-board.route.mjs",
     "ctl:drc": "node tools/pcbflow/drc.mjs build/control-board/control-board.routed.json 0.14",
     "ctl:fab": "node tools/pcbflow/fab.mjs build/control-board/control-board.routed.json hardware/control-board.bom.mjs fab/control-board && python3 tools/pcbflow/gerbercheck.py fab/control-board/gerber build/ctl-gerber-top.svg",
-    "ctl": "npm run ctl:build && npm run ctl:route && npm run ctl:fab"
+    "ctl": "npm run ctl:build && npm run ctl:replay && npm run ctl:fab"
   },
   "repository": {
     "type": "git",
