@@ -48,6 +48,7 @@ export default {
     { net: "CHG_SW", layer: "top", width: 0.3, pts: [{ x: -47.5, y: 17.51 }, { x: -46.9, y: 17.9 }] },
     { net: "CHG_SW", layer: "inner2", width: 0.3, pts: [{ x: -46.9, y: 17.9 }, { x: -46.9, y: 23.2 }, { x: -46.6, y: 23.5 }] },
     { net: "CHG_MID", layer: "top", width: 0.25, pts: [{ x: -52.25, y: 16.85 }, { x: -52.25, y: 15.6 }] },
+    { net: "CHG_MID", layer: "bottom", width: 0.25, pts: [{ x: -52.25, y: 15.6 }, { x: -52.25, y: 14.31 }] },
     // TPS61089 (U3 at (46, -3)): VOUT bus to the output caps, SW to L2 / C16 / R15, VIN to C12
     { net: "VBOOST", layer: "top", width: 0.45, pts: [{ x: 46.35, y: -5.05 }, { x: 46.35, y: -6.4 }] },
     { net: "VBOOST", layer: "top", width: 0.8, pts: [{ x: 42.5, y: -7.54 }, { x: 42.5, y: -6.4 }, { x: 48.5, y: -6.4 }, { x: 48.5, y: -7.54 }] },

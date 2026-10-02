@@ -61,7 +61,7 @@ export function toDsn(cj, opts) {
   const via = viaName(opts.via?.d ?? 0.6, opts.via?.drill ?? 0.3)
   const viaSizes = new Map([[via, opts.via?.d ?? 0.6]])
   for (const v of cj.filter((e) => e.type === "pcb_via")) viaSizes.set(viaName(v.outer_diameter, v.hole_diameter), v.outer_diameter)
-  L.push(`    (via ${q(via)})`)
+  L.push(`    (via ${[...viaSizes.keys()].map(q).join(" ")})`)
   L.push(
     `    (rule (width ${n(opts.defaultWidth)}) (clearance ${n(opts.clearance)}) (clearance ${n(opts.clearance)} (type default_smd)) (clearance ${n(opts.smdClearance ?? opts.clearance)} (type smd_smd)))`,
   )
