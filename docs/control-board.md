@@ -37,13 +37,16 @@ Source: [`hardware/control-board.circuit.tsx`](../hardware/control-board.circuit
 * **Off current:** with the latch off, nothing but the charger's quiescent current loads the pack.
 * **USB power:** D3 (SS34) feeds USB 5 V into VSYS. With USB plugged in, the electronics run even if the latch is off or the pack is flat. This also allows flashing over native USB.
 
-### Charger: BQ25887 (2S boost charger with cell balancing, I²C 0x6A)
+### Charger: BQ25887 (2S boost charger with cell balancing, I²C 0x6B or 0x6A)
 
 * **Charging:** 5 V USB-C, sink-only (5.1k Rd on CC1/CC2). The ESP32 measures CC1/CC2 voltage (GPIO7/8) to learn the source's current advertisement, then raises the input current limit over I²C.
 * **Default limit:** PSEL is pulled high, so the 500 mA default applies.
 * **Standalone:** charging works without firmware, at the chip's defaults (8.4 V, auto termination).
 * **Battery temperature:** NTC on TS (TH1 under the cells, 5.23k/30.1k network).
-* **Balancing:** CBSET → 47 Ω → MID.
+* **Balancing:** CBSET → 47 Ω (2512) → cell midpoint, about 87 mA and 0.36 W. The MID sense pin has its own 300 Ω to the midpoint (R36), which the datasheet asks for in case the bottom cell is inserted backwards.
+* **Input current hardware limit:** R_ILIM = 390 Ω, about 2.85 A typical and 3.3 A worst case (K_ILIM 1110–1276 A·Ω).
+* **Output:** BAT (pins 13–14) is the pack and the system load. SNS (15–16) is the boost output in front of the internal sense resistor and only carries its 2 × 22 µF caps. There is no power path, so system current while charging also flows through the sense resistor and is subtracted from the charge current.
+* **I²C address:** the datasheet says 0x6A in one place and 0x6B in others. Firmware probes both.
 
 ### Boost: TPS61089 → VBOOST for the G/B strings
 
@@ -95,28 +98,38 @@ Copper placed in code before Freerouting runs (all in [`control-board.route.mjs`
 | `PRECHECK=1` | Skip routing and DRC the hand-placed copper only |
 | `CONTINUE=<routed.json>` | Start a second pass from an earlier result |
 
-## Values to verify against datasheets
+## Datasheet check
 
-I could not open the TI datasheets while designing, so these come from datasheet summaries and the usual application circuits:
+The power ICs were checked against copies of the official datasheets: TI SLUSD89B (BQ25887), SLVSD38C (TPS61089) and SLOS263X (LMV321), and Diodes DS41326 (AP6320x). Every pin table matches the footprints. Values:
+
+| Part | Item | Value | Datasheet basis |
+|---|---|---|---|
+| BQ25887 | R_ILIM | 390 Ω (was 200 Ω) | I_IN = 1110 A·Ω / R. 200 Ω gave 5.5 A, so the pin limited nothing |
+| BQ25887 | SNS caps | 2 × 22 µF 25 V (was 2 × 10 µF) | "44 µF on SNS" |
+| BQ25887 | BAT cap | 10 µF (was 1 µF) | separate cap on BAT |
+| BQ25887 | MID pin | via 300 Ω to the midpoint (was direct) | reverse-cell protection |
+| BQ25887 | CBSET | 47 Ω, 2512 | 87 mA, 0.36 W |
+| BQ25887 | Inductor | 1 µH, Isat ≥ 4 A (4.5 A+ preferred) | 3 A in + 1.35 A ripple |
+| BQ25887 | PMID / VBUS / BTST / REGN | 2 × 10 µF / 1 µF / 47 nF / 4.7 µF | OK |
+| BQ25887 | TS | 5.23k / 30.1k | Same as TI's application figure: ≈ 0 / 10 / 45 / 60 °C with a B3380 NTC |
+| BQ25887 | PSEL | pulled high: 500 mA until firmware raises IINDPM | Deliberate: safe on any USB source without firmware |
+| TPS61089 | R_FSW | 301k FSW→SW | ≈ 510–520 kHz at 6–8.4 V in |
+| TPS61089 | R_ILIM | 150k | 6.9 A typ, ≥ 6.1 A; peak need ≈ 4.2 A. Inductor Isat ≥ 7.5 A |
+| TPS61089 | FB | 76.8k / 10k | 10.52 V |
+| TPS61089 | Compensation | 15k + 10 nF (was 4.7 nF) + 22 pF | Eq. 17–19 with ≈ 30–40 µF effective C_OUT. Crossover ≈ 8 kHz, RHP zero ≈ 89 kHz |
+| TPS61089 | VCC | 2.2 µF 16 V | > 1 µF, VCC ≈ 5.8 V |
+| AP63203WU | L / C | 4.7 µH, 10 µF in, 2 × 22 µF out | The datasheet uses 3.9 µH, and 2.2–10 µH is allowed |
+
+Behaviour to know about:
+
+* **Boost off:** with EN low, VSYS still reaches VBOOST through the high-side body diode (VBOOST ≈ VSYS − 0.5 V). That is too low to light the G/B strings, and the sinks are off anyway.
+* **TPS61089 characterization:** its electrical table is characterised at 2.7–5.5 V in. 6–8.4 V is inside the recommended 2.7–12 V range.
+
+Still unverified (no datasheet access):
 
 | Part | Item | Value used |
 |---|---|---|
-| BQ25887 | Pinout | KiCad symbol `BQ25887RGE` |
-| BQ25887 | SNS/BAT | SNS gets the 2 × 10 µF output caps, BAT goes to the pack |
-| BQ25887 | Inductor | 1 µH from PMID to SW |
-| BQ25887 | PMID caps | 2 × 10 µF |
-| BQ25887 | BTST | 47 nF |
-| BQ25887 | REGN | 4.7 µF |
-| BQ25887 | R_ILIM | 200 Ω |
-| BQ25887 | CBSET resistor | 47 Ω |
-| BQ25887 | TS network | 5.23k / 30.1k |
-| TPS61089 | Pinout | KiCad symbol |
-| TPS61089 | R_FSW | 301k (500 kHz), wired between FSW and SW |
-| TPS61089 | R_ILIM | 150k |
-| TPS61089 | Compensation | 15k + 4.7 nF + 22 pF |
-| AP63203WU | Pinout | 1 FB(=VOUT), 2 EN, 3 IN, 4 GND, 5 SW, 6 BST |
-| AP63203WU | Components | 4.7 µH, 2 × 22 µF |
-| F1 | 2410 land pattern | Generic; confirm against the actual fuse |
-| BH-18650-PC | Polarity | Pin 1 = "+" (KiCad footprint) |
+| AO4407A / AO3400A | Pinout | KiCad library and secondary sources: S 1–3, G 4, D 5–8 / G 1, S 2, D 3 |
+| BH-18650-PC | Polarity, and sourcing | Pin 1 = "+" (KiCad footprint). Not stocked by LCSC: supply it yourself, or swap in an LCSC holder (e.g. C19184084) after checking its drawing against the footprint |
 
-The **USB-C** receptacle (HRO TYPE-C-31-M-12, LCSC C165948) and the **ESP32 module** use KiCad's standard footprints.
+The fuse land pattern is KiCad's `Fuse_Littelfuse-NANO2-451_453`. The **USB-C** receptacle (HRO TYPE-C-31-M-12, LCSC C165948) and the **ESP32 module** use KiCad's standard footprints.

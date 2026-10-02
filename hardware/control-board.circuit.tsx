@@ -85,7 +85,7 @@ R("TH1", "10k", "0603", -17, 0, 0, "TS", "GND", "top", "NCP18XH103F03RB (NTC 10k
 // the pack-current MID link is hand-routed wide in control-board.route.mjs
 
 // ---------------------------------------------------------------- fuse + soft latch
-parts.push(<chip key="F1" name="F1" footprint={FP_FUSE_2410} pinLabels={{ pin1: "A", pin2: "B" }} {...pos(10, 41.5, 180)} manufacturerPartNumber="Littelfuse 0451007.MRL (7 A, 2410) - VERIFY land" />)
+parts.push(<chip key="F1" name="F1" footprint={FP_FUSE_2410} pinLabels={{ pin1: "A", pin2: "B" }} {...pos(10, 41.5, 180)} manufacturerPartNumber="Littelfuse 0451007.MRL (7 A, 2410)" />)
 conns.push([".F1 > .A", net("PACKP")], [".F1 > .B", net("VBATF")])
 // Q1 P-FET: S = fused pack, D = VSYS. Off: gate pulled to source by R1.
 U("Q1", FP_SOIC_8_3_9x4_9mm_P1_27mm, SO8_PFET_PINS, 10, 35, 0, { S1: "VBATF", S2: "VBATF", S3: "VBATF", G: "LATCH_G", D1: "VSYS", D2: "VSYS", D3: "VSYS", D4: "VSYS" }, "AO4407A")
@@ -115,7 +115,7 @@ U("U6", FP_SOT_23_6, USBLC6_PINS, -61, -5, 0, { IO1A: "USB_DP", IO1B: "USB_DP", 
 U("U2", FP_QFN24, BQ25887_PINS, -52, 20, 0, {
   VBUS: "VBUS", PMID1: "PMID", PMID2: "PMID", SW1: "CHG_SW", SW2: "CHG_SW", BTST: "CHG_BTST",
   REGN: "REGN", BAT1: "VBATF", BAT2: "VBATF", SNS1: "CHG_SNS", SNS2: "CHG_SNS",
-  GND1: "GND", GND2: "GND", EP: "GND", MID: "MID", CBSET: "CBSET", TS: "TS", ILIM: "ILIM",
+  GND1: "GND", GND2: "GND", EP: "GND", MID: "CHG_MID", CBSET: "CBSET", TS: "TS", ILIM: "ILIM",
   PSEL: "PSEL", CD: "CHG_CD", SDA: "SDA", SCL: "SCL", INT: "CHG_INT", PG: "CHG_PG", STAT: "CHG_STAT",
 }, "BQ25887RGER")
 C("C1", "1uF", "0603", -55.6, 23.4, 180, "VBUS", "GND")
@@ -124,17 +124,19 @@ C("C3", "10uF", "0805", -55.5, 26.8, 90, "PMID", "GND")
 L("L1", "1uH", FP_L_Sunlord_MWSA0412S, -47.2, 26.5, 0, "PMID", "CHG_SW", "1 uH, Isat >= 4 A, 4x4 mm (e.g. Sunlord MWSA0412S-1R0MT)")
 C("C4", "47nF", "0402", -47.5, 17, 90, "CHG_BTST", "CHG_SW")
 C("C5", "4.7uF", "0603", -57.2, 13.6, 0, "REGN", "GND")
-C("C6", "10uF", "0805", -45.5, 20.5, 90, "CHG_SNS", "GND")
-C("C7", "10uF", "0805", -43, 20.5, 90, "CHG_SNS", "GND")
-C("C8", "1uF", "0603", -46, 15, 90, "VBATF", "GND")
+C("C6", "22uF", "1206", -45.5, 20.5, 90, "CHG_SNS", "GND")
+C("C7", "22uF", "1206", -43, 20.5, 90, "CHG_SNS", "GND")
+C("C8", "10uF", "0805", -46, 15, 90, "VBATF", "GND")
 R("R8", "47", "2512", -42, 11, 90, "CBSET", "MID", "top", "47R 2512 1W (balancing current limit)")
-R("R9", "200", "0402", -53.6, 13.6, 0, "ILIM", "GND")
+// MID sense pin through its own 300R (datasheet: protects against a reversed bottom cell)
+R("R36", "300", "0402", -52.25, 13.8, 90, "CHG_MID", "MID", "bottom")
+R("R9", "390", "0402", -53.6, 13.6, 0, "ILIM", "GND")
 R("R10", "10k", "0402", -57.6, 16.6, 90, "REGN", "PSEL")
 R("R11", "100k", "0402", -56.2, 18.7, 90, "CHG_CD", "GND")
 R("R12", "5.23k", "0402", -58.5, 20, 90, "REGN", "TS")
 R("R13", "30.1k", "0402", -58.5, 23, 90, "TS", "GND")
-R("R14", "2.2k", "0402", -40, 27, 0, "REGN", "LED_CHG_A", "bottom")
-LED("D4", "red", -40, 30, "LED_CHG_A", "CHG_STAT")
+R("R14", "1k", "0402", -40, 27, 0, "REGN", "LED_CHG_A", "bottom")
+LED("D4", "green", -40, 30, "LED_CHG_A", "CHG_STAT")
 
 // ---------------------------------------------------------------- TPS61089 boost -> VBOOST (VERIFY values)
 // RNR pinout: FSW/VCC/FB/COMP on the left, GND+VOUT at the bottom, SW top
@@ -155,7 +157,7 @@ C("C17", "2.2uF", "0603", 42, -1.6, 90, "BST_VCC", "GND")
 R("R15", "301k", "0402", 43.4, 0.6, 0, "BST_FSW", "BST_SW")
 R("R16", "150k", "0402", 51.3, -3.6, 90, "BST_ILIM", "GND")
 R("R17", "15k", "0402", 40.2, -4.4, 90, "BST_COMP", "BST_RC")
-C("C18", "4.7nF", "0402", 40.2, -7.2, 90, "BST_RC", "GND")
+C("C18", "10nF", "0402", 40.2, -7.2, 90, "BST_RC", "GND")
 C("C19", "22pF", "0402", 38.6, -4.4, 90, "BST_COMP", "GND")
 R("R18", "76.8k", "0402", 52.5, -7, 90, "VBOOST", "BST_FB")
 R("R19", "10k", "0402", 42.4, -4.6, 90, "BST_FB", "GND")
@@ -187,7 +189,7 @@ R("R23", "10k", "0402", 40.5, 30.5, 90, "V3V3", "ESP_EN", "bottom")
 C("C27", "1uF", "0402", 40.5, 28, 90, "ESP_EN", "GND", "bottom")
 R("R24", "10k", "0402", 40.5, 24, 90, "V3V3", "BTN2", "bottom")
 R("R25", "1k", "0402", 40.5, 14, 90, "LED_STAT", "LED_ST_A", "bottom")
-LED("D5", "green", 40.5, 11, "LED_ST_A", "GND")
+LED("D5", "red", 40.5, 11, "LED_ST_A", "GND")
 
 // sensing
 R("R26", "100k", "0402", 30, 6, 90, "VSYS", "VSYS_ADC")

@@ -17,11 +17,13 @@
 #define PIN_BOOST_TRIM   13  // LEDC PWM -> RC -> boost FB: 0% ~11.4 V, idle/hi-Z 10.5 V, 100% ~8.9 V
 #define PIN_PCA_OE       15  // PCA9685 /OE, active low (10k pull-up = LEDs off at boot)
 
-// I2C: PCA9685 (0x40) on the LED board, BQ25887 (0x6A) charger
+// I2C: PCA9685 (0x40) on the LED board, BQ25887 charger. The BQ25887 datasheet
+// gives both 0x6A (8.3.11) and 0x6B (8.3.11.5, register map): probe both.
 #define PIN_I2C_SDA      9
 #define PIN_I2C_SCL      10
 #define I2C_ADDR_PCA9685 0x40
-#define I2C_ADDR_BQ25887 0x6A
+#define I2C_ADDR_BQ25887     0x6B
+#define I2C_ADDR_BQ25887_ALT 0x6A
 
 // charger
 #define PIN_CHG_INT      16  // BQ25887 /INT, open drain, active low

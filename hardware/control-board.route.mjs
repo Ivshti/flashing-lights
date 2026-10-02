@@ -29,7 +29,7 @@ export default {
   wires: [
     { net: "MID", layer: "top", width: 1.5, pts: [{ x: -17, y: -36.45 }, { x: -17, y: -32.5 }, { x: 17, y: -32.5 }, { x: 17, y: -36.45 }] },
     { net: "MID", layer: "bottom", width: 1.5, pts: [{ x: -17, y: -36.45 }, { x: -17, y: -32.5 }, { x: 17, y: -32.5 }, { x: 17, y: -36.45 }] },
-    { net: "PACKP", layer: "top", width: 1.5, pts: [{ x: 17, y: 36.45 }, { x: 17, y: 41.5 }, { x: 12.55, y: 41.5 }] },
+    { net: "PACKP", layer: "top", width: 1.5, pts: [{ x: 17, y: 36.45 }, { x: 17, y: 41.5 }, { x: 12.455, y: 41.5 }] },
     // BQ25887 power pins -> their local capacitors / inductor (U2 at (-52, 20))
     { net: "VBUS", layer: "top", width: 0.25, pts: [{ x: -52.75, y: 23.15 }, { x: -52.75, y: 23.4 }, { x: -54.77, y: 23.4 }] },
     { net: "PMID", layer: "top", width: 0.25, pts: [{ x: -52.25, y: 23.15 }, { x: -52.25, y: 24.6 }] },
@@ -39,10 +39,10 @@ export default {
     { net: "CHG_SW", layer: "top", width: 0.25, pts: [{ x: -48.85, y: 20.75 }, { x: -48.85, y: 21.25 }] },
     { net: "CHG_SW", layer: "top", width: 0.5, pts: [{ x: -48.85, y: 21.25 }, { x: -47.6, y: 22.5 }, { x: -45.35, y: 24.75 }, { x: -45.35, y: 26.5 }] },
     { net: "CHG_SNS", layer: "top", width: 0.25, pts: [{ x: -48.85, y: 20.25 }, { x: -48.85, y: 19.75 }] },
-    { net: "CHG_SNS", layer: "top", width: 0.4, pts: [{ x: -48.85, y: 19.75 }, { x: -45.5, y: 19.75 }, { x: -45.5, y: 19.59 }, { x: -43, y: 19.59 }] },
+    { net: "CHG_SNS", layer: "top", width: 0.4, pts: [{ x: -48.85, y: 19.75 }, { x: -45.5, y: 19.75 }, { x: -45.5, y: 19.04 }, { x: -43, y: 19.04 }] },
     { net: "CHG_SW", layer: "top", width: 0.3, pts: [{ x: -47.5, y: 17.51 }, { x: -46.9, y: 17.9 }] },
     { net: "CHG_SW", layer: "inner2", width: 0.3, pts: [{ x: -46.9, y: 17.9 }, { x: -46.9, y: 23.2 }, { x: -46.6, y: 23.5 }] },
-    { net: "MID", layer: "top", width: 0.25, pts: [{ x: -52.25, y: 16.85 }, { x: -52.25, y: 15.6 }] },
+    { net: "CHG_MID", layer: "top", width: 0.25, pts: [{ x: -52.25, y: 16.85 }, { x: -52.25, y: 15.6 }] },
     // TPS61089 (U3 at (46, -3)): VOUT bus to the output caps, SW to L2 / C16 / R15, VIN to C12
     { net: "VBOOST", layer: "top", width: 0.45, pts: [{ x: 46.35, y: -5.05 }, { x: 46.35, y: -6.4 }] },
     { net: "VBOOST", layer: "top", width: 0.8, pts: [{ x: 42.5, y: -7.54 }, { x: 42.5, y: -6.4 }, { x: 48.5, y: -6.4 }, { x: 48.5, y: -7.54 }] },
@@ -69,7 +69,7 @@ export default {
   vias: [
     { net: "CHG_SW", x: -46.9, y: 17.9 },
     { net: "CHG_SW", x: -46.6, y: 23.5 },
-    { net: "MID", x: -52.25, y: 15.6 },
+    { net: "CHG_MID", x: -52.25, y: 15.6 },
     { net: "VBOOST", x: 50.3, y: -6.4 },
     { net: "BST_FB", x: 52.5, y: -5.9 },
     { net: "BST_FB", x: 41.55, y: -5.2 },

@@ -1,12 +1,12 @@
 // Footprints / pin maps used on the control board.
 export { FP_Texas_RGE0024H_VQFN_24_1EP_4x4mm_P0_5mm_EP2_7x2_7mm as FP_QFN24 } from "./kicad-footprints"
 
-/** SMD fuse, 2410 (6.1 x 2.6 mm) body, e.g. Littelfuse 0451/0453 NANO2.
- *  VERIFY land pattern against the fuse you buy. */
+/** SMD fuse, 2410 (6.1 x 2.69 mm) body: Littelfuse 0451/0453 NANO2. Land
+ *  pattern from KiCad Fuse_Littelfuse-NANO2-451_453 (1.96 x 3.15 at +-2.455). */
 export const FP_FUSE_2410 = (
   <footprint>
-    <smtpad portHints={["1"]} pcbX="-2.55mm" pcbY="0mm" width="2.0mm" height="3.0mm" shape="rect" layer="top" />
-    <smtpad portHints={["2"]} pcbX="2.55mm" pcbY="0mm" width="2.0mm" height="3.0mm" shape="rect" layer="top" />
+    <smtpad portHints={["1"]} pcbX="-2.455mm" pcbY="0mm" width="1.96mm" height="3.15mm" shape="rect" layer="top" />
+    <smtpad portHints={["2"]} pcbX="2.455mm" pcbY="0mm" width="1.96mm" height="3.15mm" shape="rect" layer="top" />
     <silkscreenpath route={[{ x: -1.3, y: 1.6 }, { x: 1.3, y: 1.6 }]} strokeWidth={0.12} />
     <silkscreenpath route={[{ x: -1.3, y: -1.6 }, { x: 1.3, y: -1.6 }]} strokeWidth={0.12} />
   </footprint>
