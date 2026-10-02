@@ -52,16 +52,29 @@ export default {
     { net: "BST_SW", layer: "top", width: 0.3, pts: [{ x: 50.01, y: 1.8 }, { x: 50.01, y: 0.6 }] },
     { net: "BST_SW", layer: "top", width: 0.3, pts: [{ x: 43.91, y: 0.6 }, { x: 46, y: 0.6 }] },
     { net: "VSYS", layer: "top", width: 0.3, pts: [{ x: 48.245, y: -2.75 }, { x: 49.8, y: -2.75 }, { x: 49.8, y: -2.31 }] },
-    // VBOOST to the LED-board wire pad W2: 1.5 mm on the bottom layer
-    { net: "VBOOST", layer: "bottom", width: 1.5, pts: [{ x: 43.1, y: -6.4 }, { x: 44, y: -6.4 }, { x: 44, y: 9 }, { x: 30, y: 9 }, { x: 30, y: 25 }, { x: 8, y: 25 }, { x: 2.5, y: 30.5 }, { x: 2.5, y: 32.2 }] },
+    // VBOOST to the LED-board wire pad W2: 1.5 mm on the bottom layer, dropped
+    // east of U3 so its west pins (COMP, FB) keep room for vias
+    { net: "VBOOST", layer: "top", width: 0.8, pts: [{ x: 48.5, y: -6.4 }, { x: 50.3, y: -6.4 }] },
+    { net: "VBOOST", layer: "bottom", width: 1.5, pts: [{ x: 50.3, y: -6.4 }, { x: 50.3, y: 9 }, { x: 30, y: 9 }, { x: 30, y: 25 }, { x: 8, y: 25 }, { x: 2.5, y: 30.5 }, { x: 2.5, y: 32.2 }] },
+    // VBOOST tap for the FB divider (R18) and the ADC divider (R28)
+    { net: "VBOOST", layer: "top", width: 0.3, pts: [{ x: 48.5, y: -7.54 }, { x: 48.9, y: -7.95 }, { x: 52.5, y: -7.95 }] },
     { net: "VBOOST", layer: "top", width: 0.3, pts: [{ x: 52.5, y: -7.51 }, { x: 52.5, y: -9.3 }, { x: 51.6, y: -9.6 }, { x: 51.6, y: -10.09 }] },
+    // FB from R18 (east) to R19 / U3.3 (west) on In2, shielded by the plane
+    { net: "BST_FB", layer: "top", width: 0.2, pts: [{ x: 52.5, y: -6.49 }, { x: 52.5, y: -5.9 }] },
+    { net: "BST_FB", layer: "inner2", width: 0.2, pts: [{ x: 52.5, y: -5.9 }, { x: 42.25, y: -5.9 }, { x: 41.55, y: -5.2 }] },
+    { net: "BST_FB", layer: "top", width: 0.2, pts: [{ x: 41.55, y: -5.2 }, { x: 42.4, y: -5.11 }] },
+    // BQ25887 VBUS pin + C1 are boxed in by PMID and PSEL: via down
+    { net: "VBUS", layer: "top", width: 0.3, pts: [{ x: -52.75, y: 23.15 }, { x: -52.75, y: 23.4 }, { x: -54.77, y: 23.4 }] },
   ],
   vias: [
     { net: "CHG_SW", x: -46.9, y: 17.9 },
     { net: "CHG_SW", x: -46.6, y: 23.5 },
     { net: "MID", x: -52.25, y: 15.6 },
-    { net: "VBOOST", x: 44, y: -6.4 },
-    { net: "VBOOST", x: 43.1, y: -6.4 },
+    { net: "VBOOST", x: 50.3, y: -6.4 },
+    { net: "BST_FB", x: 52.5, y: -5.9 },
+    { net: "BST_FB", x: 41.55, y: -5.2 },
+    { net: "VSYS", x: 48.75, y: -2.75 },
+    { net: "VBUS", x: -53.8, y: 23.4 },
     // U3 GND pin is boxed in by its neighbours and the VOUT bus: via on the end of its stub
     { net: "GND", x: 45.35, y: -5.1 },
   ],

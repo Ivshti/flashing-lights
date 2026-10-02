@@ -16,7 +16,7 @@ class DSU {
   }
 }
 
-export function check(cj, { clearance = 0.2, eps = 0.005, holeClearance = 0.3 } = {}) {
+export function check(cj, { clearance = 0.2, eps = 0.005, holeClearance = 0.3, edgeClearance = 0.3, edgeExempt = [], minTrace = 0.127, minDrill = 0.2, minAnnular = 0.13 } = {}) {
   const m = buildModel(cj)
   // items: one per (pad, layer) and per trace segment / via layer
   const items = []
@@ -113,6 +113,34 @@ export function check(cj, { clearance = 0.2, eps = 0.005, holeClearance = 0.3 } 
       const d = shapeDist(it.shape, { kind: "circle", c: { x: h.x, y: h.y }, r: h.d / 2 })
       if (d < holeClearance) violations.push({ type: "hole", d: +d.toFixed(3), a: it.ref, at: { x: h.x, y: h.y } })
     })
+  }
+  // copper vs board outline (planes are generated with their own edge inset)
+  const outline = cj.find((e) => e.type === "pcb_board")?.outline ?? []
+  const edges = outline.map((a, i) => ({ kind: "seg", a, b: outline[(i + 1) % outline.length], r: 0 }))
+  const eboxes = edges.map((e) => bbox(e))
+  items.forEach((it, i) => {
+    if (edgeExempt.some((c) => it.ref?.startsWith(`${c}.`))) return
+    const [x0, y0, x1, y1] = boxes[i]
+    let dmin = Infinity
+    edges.forEach((e, j) => {
+      const [ex0, ey0, ex1, ey1] = eboxes[j]
+      if (x1 + edgeClearance < ex0 || ex1 + edgeClearance < x0 || y1 + edgeClearance < ey0 || ey1 + edgeClearance < y0) return
+      dmin = Math.min(dmin, shapeDist(it.shape, e))
+    })
+    if (dmin < edgeClearance - eps) violations.push({ type: "edge", d: +dmin.toFixed(3), a: it.ref, nets: [it.net], at: center(it.shape) })
+  })
+  // fab minimums (JLCPCB standard process)
+  for (const t of cj.filter((e) => e.type === "pcb_trace"))
+    for (const p of t.route) if (p.route_type === "wire" && p.width < minTrace - eps) violations.push({ type: "width", d: p.width, a: t.pcb_trace_id, at: p })
+  for (const v of cj.filter((e) => e.type === "pcb_via")) {
+    if (v.hole_diameter < minDrill - eps) violations.push({ type: "drill", d: v.hole_diameter, a: v.pcb_via_id, at: v })
+    if ((v.outer_diameter - v.hole_diameter) / 2 < minAnnular - eps) violations.push({ type: "annular", d: (v.outer_diameter - v.hole_diameter) / 2, a: v.pcb_via_id, at: v })
+  }
+  for (const h of cj.filter((e) => e.type === "pcb_plated_hole")) {
+    const d = h.hole_diameter ?? Math.min(h.hole_width ?? Infinity, h.hole_height ?? Infinity)
+    const o = h.outer_diameter ?? Math.min(h.rect_pad_width ?? h.outer_width ?? Infinity, h.rect_pad_height ?? h.outer_height ?? Infinity)
+    if (d < minDrill - eps) violations.push({ type: "drill", d, a: h.pcb_plated_hole_id, at: h })
+    if (Number.isFinite(o) && (o - d) / 2 < minAnnular - eps) violations.push({ type: "annular", d: +((o - d) / 2).toFixed(3), a: h.pcb_plated_hole_id, at: h })
   }
   return { unrouted, violations }
 }
