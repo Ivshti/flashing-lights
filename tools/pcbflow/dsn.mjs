@@ -55,7 +55,12 @@ export function toDsn(cj, opts) {
       L.push(
         `    (keepout "" (rect ${ly} ${n(k.x1)} ${n(k.y1)} ${n(k.x2)} ${n(k.y2)}))`,
       )
-  const via = `Via_${n(opts.via?.d ?? 0.6)}_${n(opts.via?.drill ?? 0.3)}`
+  // via padstacks: the default one (used by the router) plus any other size
+  // already placed by hand; names encode the size so the .ses reads back
+  const viaName = (d, drill) => `Via_${Math.round(d * 1000)}_${Math.round(drill * 1000)}`
+  const via = viaName(opts.via?.d ?? 0.6, opts.via?.drill ?? 0.3)
+  const viaSizes = new Map([[via, opts.via?.d ?? 0.6]])
+  for (const v of cj.filter((e) => e.type === "pcb_via")) viaSizes.set(viaName(v.outer_diameter, v.hole_diameter), v.outer_diameter)
   L.push(`    (via ${q(via)})`)
   L.push(
     `    (rule (width ${n(opts.defaultWidth)}) (clearance ${n(opts.clearance)}) (clearance ${n(opts.clearance)} (type default_smd)) (clearance ${n(opts.smdClearance ?? opts.clearance)} (type smd_smd)))`,
@@ -100,9 +105,8 @@ export function toDsn(cj, opts) {
   L.push(`  )`, `  (library`, ...images)
   for (const { name, parts } of padstacks.values())
     L.push(`    (padstack ${name} ${parts.map((p) => `(shape ${p})`).join(" ")} (attach off))`)
-  L.push(
-      `    (padstack ${q(via)} ${allLayers.map((ly) => `(shape (circle ${ly} ${n(opts.via?.d ?? 0.6)}))`).join(" ")} (attach off))`,
-    )
+  for (const [name, d] of viaSizes)
+    L.push(`    (padstack ${q(name)} ${allLayers.map((ly) => `(shape (circle ${ly} ${n(d)}))`).join(" ")} (attach off))`)
   L.push(`  )`)
 
   // network
@@ -156,7 +160,7 @@ export function toDsn(cj, opts) {
     flush()
   }
   for (const v of cj.filter((e) => e.type === "pcb_via"))
-    L.push(`    (via ${q(via)} ${n(v.x)} ${n(v.y)}${v._net ? ` (net ${q(v._net)})` : ""} (type ${v._editable ? "route" : "protect"}))`)
+    L.push(`    (via ${q(viaName(v.outer_diameter, v.hole_diameter))} ${n(v.x)} ${n(v.y)}${v._net ? ` (net ${q(v._net)})` : ""} (type ${v._editable ? "route" : "protect"}))`)
   L.push(`  )`, `)`)
   return { dsn: L.join("\n") + "\n", nets, model: m }
 }
@@ -219,13 +223,14 @@ export function sesToElements(ses, { via } = {}) {
       els.push({ type: "pcb_trace", pcb_trace_id: `fr_trace_${k++}`, route, _net: name, source: "freerouting" })
     }
     for (const v of findAll(net, "via")) {
+      const size = /^Via_(\d+)_(\d+)$/.exec(String(v[1]).replace(/"/g, ""))
       els.push({
         type: "pcb_via",
         pcb_via_id: `fr_via_${k++}`,
         x: Number(v[2]) * scale,
         y: Number(v[3]) * scale,
-        outer_diameter: via?.d ?? 0.6,
-        hole_diameter: via?.drill ?? 0.3,
+        outer_diameter: size ? Number(size[1]) / 1000 : (via?.d ?? 0.6),
+        hole_diameter: size ? Number(size[2]) / 1000 : (via?.drill ?? 0.3),
         layers: via?.layers ?? ["top", "bottom"],
         _net: name,
       })

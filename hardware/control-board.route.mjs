@@ -1,4 +1,9 @@
 // Freerouting setup for the 4-layer control board (In1 = GND plane).
+// [net, pin y, via x] for BQ25887 pins 1-6
+const U2_WEST = [
+  ["CHG_PG", 21.25, -54.95], ["CHG_STAT", 20.75, -55.65], ["CHG_CD", 20.25, -54.95],
+  ["SDA", 19.75, -55.65], ["SCL", 19.25, -54.95], ["CHG_INT", 18.75, -55.65],
+]
 const ANTENNA = { x1: 43, y1: 37.5, x2: 62, y2: 45 } // ESP32-S3 antenna keepout
 export default {
   name: "control-board",
@@ -65,6 +70,8 @@ export default {
     { net: "BST_FB", layer: "top", width: 0.2, pts: [{ x: 41.55, y: -5.2 }, { x: 42.4, y: -5.11 }] },
     // BQ25887 VBUS pin + C1 are boxed in by PMID and PSEL: via down
     { net: "VBUS", layer: "top", width: 0.3, pts: [{ x: -52.75, y: 23.15 }, { x: -52.75, y: 23.4 }, { x: -54.77, y: 23.4 }] },
+    // BQ25887 west pins (0.5 mm pitch): fan out to two staggered columns of small vias
+    ...U2_WEST.map(([net, y, x]) => ({ net, layer: "top", width: 0.2, pts: [{ x: -53.96, y }, { x, y }] })),
   ],
   vias: [
     { net: "CHG_SW", x: -46.9, y: 17.9 },
@@ -75,6 +82,7 @@ export default {
     { net: "BST_FB", x: 41.55, y: -5.2 },
     { net: "VSYS", x: 48.75, y: -2.75 },
     { net: "VBUS", x: -53.8, y: 23.4 },
+    ...U2_WEST.map(([net, y, x]) => ({ net, x, y, d: 0.45, drill: 0.2 })),
     // U3 GND pin is boxed in by its neighbours and the VOUT bus: via on the end of its stub
     { net: "GND", x: 45.35, y: -5.1 },
   ],
@@ -96,5 +104,5 @@ export default {
     },
   ],
   freerouting: { passes: 80, threads: 4, timeoutS: 2400 },
-  check: { clearance: 0.14, holeClearance: 0.25 },
+  check: { clearance: 0.14, holeClearance: 0.25, minTrace: 0.1 },
 }

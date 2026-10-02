@@ -45,8 +45,8 @@ for (const [i, v] of (cfg.vias ?? []).entries())
     pcb_via_id: `manual_via_${i}`,
     x: v.x,
     y: v.y,
-    outer_diameter: cfg.dsn.via.d,
-    hole_diameter: cfg.dsn.via.drill,
+    outer_diameter: v.d ?? cfg.dsn.via.d,
+    hole_diameter: v.drill ?? cfg.dsn.via.drill,
     layers: cfg.dsn.via.layers,
     _net: v.net,
   })

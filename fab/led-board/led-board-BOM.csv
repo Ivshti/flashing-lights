@@ -1,5 +1,5 @@
 "Comment","Designator","Footprint","LCSC Part #","Manufacturer Part","Qty","Note"
-"LED 3535 RGBA 4-in-1, 350 mA/die","D00,D01,D02,D10,D11,D12,D20,D21,D22,D30,D31,D32","LED3535-8 (custom)","","","12","CHOOSE PART, then verify pinout against hardware/lib/led3535.tsx"
+"LED 3535 RGBA 4-in-1, 350 mA/die","D00,D01,D02,D10,D11,D12,D20,D21,D22,D30,D31,D32","LED3535-8 (custom)","","","12","Not on LCSC: generic ceramic 3535 RGBA 4x1 W, consigned. Verify pinout against hardware/lib/led3535.tsx"
 "0R jumper 2512","JV0,JV1,JV2,JV3,JVC","2512","C2074834","Bourns CR2512-J/-000ELF","5","carries one column, <= 0.7 A"
 "AO3400A","Q0R,Q0G,Q0B,Q0A,Q1R,Q1G,Q1B,Q1A,Q2A,Q2B,Q2G,Q2R,Q3A,Q3B,Q3G,Q3R","SOT-23","C20917","AO3400A","16",""
 "LMV321 (TI pinout: 1=IN+ 2=V- 3=IN- 4=OUT 5=V+)","U0R,U0G,U0B,U0A,U1R,U1G,U1B,U1A,U2A,U2B,U2G,U2R,U3A,U3B,U3G,U3R","SOT-23-5","C7972","LMV321IDBVR","16","TI original only: clones differ in pinout"

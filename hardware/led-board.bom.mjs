@@ -7,7 +7,7 @@ export default {
       match: /^D\d\d$/,
       comment: "LED 3535 RGBA 4-in-1, 350 mA/die",
       footprint: "LED3535-8 (custom)",
-      note: "CHOOSE PART, then verify pinout against hardware/lib/led3535.tsx",
+      note: "Not on LCSC: generic ceramic 3535 RGBA 4x1 W, consigned. Verify pinout against hardware/lib/led3535.tsx",
     },
     { match: /^Q\d[RGBA]$/, comment: "AO3400A", footprint: "SOT-23", lcsc: "C20917", mpn: "AO3400A" },
     { match: /^U\d[RGBA]$/, comment: "LMV321 (TI pinout: 1=IN+ 2=V- 3=IN- 4=OUT 5=V+)", footprint: "SOT-23-5", lcsc: "C7972", mpn: "LMV321IDBVR", note: "TI original only: clones differ in pinout" },

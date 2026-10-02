@@ -72,13 +72,18 @@ The control board has plated pads at the same coordinates, so with 10–12 mm st
 
 ## Things to verify before ordering
 
-* **LED part and footprint.** Pick a real 3535 RGBA 4-in-1 part and check [`hardware/lib/led3535.tsx`](../hardware/lib/led3535.tsx) against its datasheet:
-  * pad pitch;
+* **LED part and footprint: the one part JLC can't supply.** As of October 2026 there is no 350 mA-per-die RGBA 4-in-1 package on LCSC:
+  * the branded RGBA emitters (LED Engin LZ4-00MA00 / -MA08) are obsolete;
+  * the only LCSC RGBA part, Cree CLQ6A-YKW (C6534448), is a 100 mA PLCC8 (200 mA max) and would need a different footprint and lower sense currents;
+  * Cree XM-L Color (RGBW) is the nearest branded alternative, but has no amber.
+
+  The board is laid out for a **generic ceramic 3535 RGBA 4-in-1, 4 × 1 W**, which GMKJ, Moon-LEDs, Lumixtar and others sell. Order them, send them to JLC as **consigned parts** or reflow them by hand (hot plate), and check [`hardware/lib/led3535.tsx`](../hardware/lib/led3535.tsx) against that vendor's datasheet first:
+  * pad pitch and size;
   * that each anode sits opposite its own cathode;
   * die order;
-  * whether it has a thermal pad.
+  * whether there is a thermal pad and whether it is neutral. A neutral pad can go on the copper under the package; one tied to a die cannot.
 
-  If the die order differs, only `DIE_ORDER` changes. The rest of the board regenerates.
+  If only the die order differs, change `DIE_ORDER` and the rest of the board regenerates. The sense resistors set about 335 mA per string: change `RS` (0.33 Ω) for other parts, e.g. 1.2 Ω for 100 mA.
 * **LMV321 pinout:** TI DBV (1 IN+, 2 V−, 3 IN−, 4 OUT, 5 V+). SOT-23-5 single op-amp pinouts vary between vendors (some put OUT on pin 1), so check the exact part.
 * **Lens fit:** about 20 mm TIR lenses fit the 30 × 22 mm pitch. The 1206 jumpers sit in the strips between lenses but get close at the row heights. Check against the actual lens holder.
 * **JLC CPL rotations** must be checked in their 3D preview, as always.
